@@ -209,7 +209,9 @@ def dimensionality_check(points: Iterable[Point]):
     When there is a point with unique number of dimensions, it raises an
     `InconsistentDimensionalityError`.
     """
-    if len({point.dimensionality for point in points}) > 1:
+    if len(tuple(points)) == 0:
+        raise ValueError("No point provided")
+    elif len({point.dimensionality for point in points}) > 1:
         raise InconsistentDimensionalityError(points)
 
 
