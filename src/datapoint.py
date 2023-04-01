@@ -120,9 +120,10 @@ class Centroid(Point):
         super().__init__(coords)
         self.__points = tuple(points)
         self.__name = name
+
         if not self.name:
-            self.__name = f"centroid_{self.__COUNTER}"
-            self.__COUNTER += 1
+            self.__name = f"centroid_{Centroid.__COUNTER}"
+            Centroid.__COUNTER += 1
 
     @property
     def points(self) -> tuple[Point]:
