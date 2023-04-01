@@ -31,6 +31,23 @@ class Point:
         """Number of dimensions this point is described in."""
         return len(self.coords)
 
+    def normalize(self, frame: tuple["Point", "Point"]) -> "Point":
+        """Normalizes the values for each of the dimension by the given frame.
+        The result values for each of the dimension are inside interval of
+        [0; 1].
+        """
+        normalized = []
+
+        for dim in range(self.dimensionality):
+            d_min = frame[0].coords[dim]
+            d_max = frame[1].coords[dim]
+            normalized.append((self.coords[dim] - d_min) / (d_max - d_min))
+
+        return Point(normalized)
+
+    def __repr__(self):
+        return f"{self.coords}"
+
 
 class Example(Point):
     """Instances of this class represents the examples of the given problem
@@ -58,6 +75,23 @@ class Example(Point):
         relevant attributes mapped by `str -> str`.
         """
         return deepcopy(self.__other_attrs)
+
+    def normalize(self, frame: tuple["Point", "Point"]) -> "Point":
+        """Normalizes the values for each of the dimension by the given frame.
+        The result values for each of the dimension are inside interval of
+        [0; 1].
+        """
+        normalized = []
+
+        for dim in range(self.dimensionality):
+            d_min = frame[0].coords[dim]
+            d_max = frame[1].coords[dim]
+            normalized.append((self.coords[dim] - d_min) / (d_max - d_min))
+
+        return Example(normalized, self.other_attrs)
+
+    def __repr__(self):
+        return f"{self.coords} - {self.__other_attrs}"
 
 
 class Centroid(Point):
@@ -107,6 +141,11 @@ class Centroid(Point):
         """String representation of the cluster."""
         return f"{self.name} {self.coords}: (points = {self.number_of_points})"
 
+    def normalize(self, frame: tuple["Point", "Point"]) -> "Point":
+        """Raises the exception, because centroids cannot be normalized since
+        these are just static points related to the given points."""
+        raise NormalizationError("Centroids cannot be normalized")
+
     @staticmethod
     def centroid_of(points: Iterable[Point], name: str = ""):
         """Static method implemented as a factory for the centroids by given
@@ -151,6 +190,17 @@ class InconsistentDimensionalityError(Exception):
         return tuple(self.__points)
 
 
+class NormalizationError(Exception):
+    """This exception describes the error occurring when the system finds a
+    problem when trying to perform a normalization."""
+
+    def __init__(self, message: str):
+        """Initor taking the string-based message and passing it to the
+        parent class initor (`Exception`).
+        """
+        super().__init__(message)
+
+
 def dimensionality_check(points: Iterable[Point]):
     """Checks that all of the given points have the same dimensionality.
     When there is a point with unique number of dimensions, it raises an
@@ -158,5 +208,72 @@ def dimensionality_check(points: Iterable[Point]):
     """
     if len({point.dimensionality for point in points}) > 1:
         raise InconsistentDimensionalityError(points)
+
+
+def minimums(points: Iterable[Point]) -> tuple[float]:
+    """Finds out the minimal values in each of the dimension for each of the
+    point in the given iterable of points.
+    """
+    dimensionality_check(points)
+    points = tuple(points)
+    n_dim = points[0].dimensionality
+
+    return tuple(
+        # For each dimension find the minimum over all the points and
+        # cast these to float for type hinting purposes
+        min([float(p.coords[dim]) for p in points]) for dim in range(n_dim)
+    )
+
+
+def maximums(points: Iterable[Point]) -> tuple[float]:
+    """Finds out the maximum values in each of the dimension for each of the
+    point in the given iterable of points.
+    """
+    dimensionality_check(points)
+    points = tuple(points)
+    n_dim = points[0].dimensionality
+
+    return tuple(
+        # For each dimension find the maximum over all the points and
+        # cast these to float for type hinting purposes
+        max([float(p.coords[dim]) for p in points]) for dim in range(n_dim)
+    )
+
+
+def frame_of(points: Iterable[Point]) -> tuple[Point, Point]:
+    """Creates two framing points as a minimum and maximum values in each of
+    the dimension."""
+    return Point(minimums(points)), Point(maximums(points))
+
+
+def normalize(points: Iterable[Point]) -> tuple[Point]:
+    """Tries to normalize all of the values inside the given iterable of
+    points.
+
+    It fails in these cases:
+        - When given an empty iterable
+        - When all of the points does not have the same dimensionality
+        - When for any of the dimension is the min value equal to the max one
+        - When is normalization performed on a centroid
+    """
+    dimensionality_check(points)
+
+    points = tuple(points)
+
+    if len(points) == 0:
+        raise NormalizationError("Cannot normalize an empty iterable")
+
+    n_dims = points[0].dimensionality
+
+    frame = frame_of(points)
+    mins = frame[0].coords
+    maxs = frame[1].coords
+
+    if not all(maxs[dim] != mins[dim] for dim in range(n_dims)):
+        raise NormalizationError(
+            "Difference between min and max has to be for every dimension > 0")
+
+    return tuple(point.normalize(frame) for point in points)
+
 
 
