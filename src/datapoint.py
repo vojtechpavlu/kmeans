@@ -1,4 +1,6 @@
-""""""
+"""This module contains all the means for representing and working with
+datapoints in the multidimensional space.
+"""
 
 from typing import Iterable, Dict
 from copy import deepcopy
