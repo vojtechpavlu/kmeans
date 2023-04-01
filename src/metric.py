@@ -1,4 +1,9 @@
-""""""
+"""This module contains the most simple metrics for the distance evaluation.
+Metric is a generalization of distance, while distance is a difference between
+two points in the space.
+
+See also: https://en.wikipedia.org/wiki/Metric_space
+"""
 
 from abc import ABC, abstractmethod
 
@@ -82,3 +87,30 @@ class Taxicab(Metric):
         # Return sum of these differences
         return sum(abs_diffs)
 
+
+class Hamming(Metric):
+    """Hamming metric is one of the simplest one distances. It simply evaluates
+    the number of differences in the given sets.
+
+    In the case of the points in a multidimensional space, it tries to count
+    all of the dimensions the two point have different values. For this reason
+    it returns an integer instead of more common float (real number).
+    """
+
+    def distance(self, p1: Point, p2: Point) -> int:
+        # Check the dimensionality of the two points
+        dimensionality_check([p1, p2])
+
+        # Set the number of dimensions as a dimensionality of the first one
+        # (both point has to have the same at this point)
+        n_dims = p1.dimensionality
+
+        # Counter of the differences
+        differences = 0
+
+        # Count different values of coordinates across all the dimensions
+        for dimension in range(n_dims):
+            if p1.coords[dimension] != p2.coords[dimension]:
+                differences += 1
+
+        return differences
