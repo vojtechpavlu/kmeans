@@ -120,9 +120,10 @@ class Centroid(Point):
         super().__init__(coords)
         self.__points = tuple(points)
         self.__name = name
+
         if not self.name:
-            self.__name = f"centroid_{self.__COUNTER}"
-            self.__COUNTER += 1
+            self.__name = f"centroid_{Centroid.__COUNTER}"
+            Centroid.__COUNTER += 1
 
     @property
     def points(self) -> tuple[Point]:
@@ -208,7 +209,9 @@ def dimensionality_check(points: Iterable[Point]):
     When there is a point with unique number of dimensions, it raises an
     `InconsistentDimensionalityError`.
     """
-    if len({point.dimensionality for point in points}) > 1:
+    if len(tuple(points)) == 0:
+        raise ValueError("No point provided")
+    elif len({point.dimensionality for point in points}) > 1:
         raise InconsistentDimensionalityError(points)
 
 
