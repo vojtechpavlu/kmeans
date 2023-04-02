@@ -118,7 +118,7 @@ class Centroid(Point):
         This name should be unique.
         """
         super().__init__(coords)
-        self.__points = tuple(points)
+        self.__points = list(points)
         self.__name = name
 
         if not self.name:
@@ -149,8 +149,22 @@ class Centroid(Point):
         these are just static points related to the given points."""
         raise NormalizationError("Centroids cannot be normalized")
 
+    def add_point(self, point: Point):
+        """Registers the given point in the centroid."""
+        self.__points.append(point)
+
+    def flush(self):
+        """Removes all the points assigned to the centroid."""
+        self.__points.clear()
+
+    def recalculate(self) -> "Centroid":
+        """Recalculates the centroid coordinates by creating the new instance.
+        This method works just as described in design pattern of State.
+        """
+        return Centroid.centroid_of(self.points, self.name)
+
     @staticmethod
-    def centroid_of(points: Iterable[Point], name: str = ""):
+    def centroid_of(points: Iterable[Point], name: str = "") -> "Centroid":
         """Static method implemented as a factory for the centroids by given
         points.
 
@@ -172,6 +186,15 @@ class Centroid(Point):
             averages.append(sum(p.coords[dimension] for p in points) / n)
 
         return Centroid(averages, points, name)
+
+    @staticmethod
+    def centroid_of_point(point: Point, name: str = "") -> "Centroid":
+        """Static method implemented as a factory for the centroids by given
+        point that is copied - in terms of the point's coordinates.
+
+        The given point is transformed into the centroid.
+        """
+        return Centroid(point.coords, (), name)
 
 
 class InconsistentDimensionalityError(Exception):
