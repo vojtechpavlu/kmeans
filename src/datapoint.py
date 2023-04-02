@@ -140,6 +140,12 @@ class Centroid(Point):
         """Name given to the cluster."""
         return self.__name
 
+    @property
+    def frame(self) -> tuple[Point, Point]:
+        """Calculates the two framing points describing the space the
+        datapoints being assigned to this cluster (centroid)."""
+        return frame_of(self.points)
+
     def __repr__(self):
         """String representation of the cluster."""
         return f"{self.name} {self.coords}: (points = {self.number_of_points})"
