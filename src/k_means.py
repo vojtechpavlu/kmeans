@@ -85,7 +85,7 @@ class KMeans:
         model by given data.
 
         It takes the iterable of datapoints, that should be processed by the
-        cluster analysis and an optional interable of default points to be
+        cluster analysis and an optional iterable of default points to be
         taken as default centroids.
 
         The actual algorithm is based on iteratively performing this actions:
