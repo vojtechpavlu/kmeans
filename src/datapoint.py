@@ -5,7 +5,11 @@ datapoints in the multidimensional space.
 from typing import Iterable, Dict
 from copy import deepcopy
 
-from src.metric import Metric
+from typing import TYPE_CHECKING
+
+# Problems with circular imports
+if TYPE_CHECKING:
+    from src.metric import Metric
 
 
 class Point:
@@ -148,7 +152,7 @@ class Centroid(Point):
         datapoints being assigned to this cluster (centroid)."""
         return frame_of(self.points)
 
-    def variance(self, metric: Metric) -> float:
+    def variance(self, metric: "Metric") -> float:
         """Calculates the variance of the cluster by squaring the distances
         between the current centroid coordinates and each of the point
         assigned to it.
