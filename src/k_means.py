@@ -81,3 +81,14 @@ class KMeans:
                     break
 
             self.__centroids = recalc
+
+
+class KMeansError(Exception):
+    """This exception represents error that may occur when trying to make or
+    to train a model but it runs into some inconsistent state."""
+
+    def __init__(self, message: str):
+        """Initor taking the message about the error and passing it to the
+        parent class' initor."""
+        super().__init__(message)
+
