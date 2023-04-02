@@ -2,11 +2,17 @@ import pytest
 
 from src.datapoint import (
     Centroid, Point, NormalizationError, InconsistentDimensionalityError)
+from src.metric import Euclidean
 
 
 @pytest.fixture
 def points() -> tuple[Point, Point]:
     return Point([0, 0]), Point([1, 1])
+
+
+@pytest.fixture
+def divergent_points() -> tuple[Point, Point]:
+    return Point([4, 0]), Point([-2, 3])
 
 
 def test_success_creation_using_initor(points: tuple[Point, Point]):
@@ -54,5 +60,13 @@ def test_raise_error_on_normalization(points: tuple[Point, Point]):
         Centroid.centroid_of(points).normalize(points)
 
 
+def test_frame(divergent_points: tuple[Point, Point]):
+    mins, maxs = Centroid.centroid_of(divergent_points).frame
+    assert mins.coords == (-2, 0)
+    assert maxs.coords == (4, 3)
 
+
+def test_variance(divergent_points: tuple[Point, Point]):
+    c = Centroid.centroid_of(divergent_points)
+    assert round(c.variance(Euclidean()), 2) == 22.5
 
