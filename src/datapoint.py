@@ -5,6 +5,12 @@ datapoints in the multidimensional space.
 from typing import Iterable, Dict
 from copy import deepcopy
 
+from typing import TYPE_CHECKING
+
+# Problems with circular imports
+if TYPE_CHECKING:
+    from src.metric import Metric
+
 
 class Point:
     """Instances of this class represents the points in the multidimensional
@@ -118,7 +124,7 @@ class Centroid(Point):
         This name should be unique.
         """
         super().__init__(coords)
-        self.__points = tuple(points)
+        self.__points = list(points)
         self.__name = name
 
         if not self.name:
@@ -140,6 +146,22 @@ class Centroid(Point):
         """Name given to the cluster."""
         return self.__name
 
+    @property
+    def frame(self) -> tuple[Point, Point]:
+        """Calculates the two framing points describing the space the
+        datapoints being assigned to this cluster (centroid)."""
+        return frame_of(self.points)
+
+    def variance(self, metric: "Metric") -> float:
+        """Calculates the variance of the cluster by squaring the distances
+        between the current centroid coordinates and each of the point
+        assigned to it.
+
+        To achieve this approach, the metric to calculate the distance has to
+        be provided."""
+        dist_squares = [metric.distance(self, p) ** 2 for p in self.points]
+        return sum(dist_squares)
+
     def __repr__(self):
         """String representation of the cluster."""
         return f"{self.name} {self.coords}: (points = {self.number_of_points})"
@@ -149,8 +171,22 @@ class Centroid(Point):
         these are just static points related to the given points."""
         raise NormalizationError("Centroids cannot be normalized")
 
+    def add_point(self, point: Point):
+        """Registers the given point in the centroid."""
+        self.__points.append(point)
+
+    def flush(self):
+        """Removes all the points assigned to the centroid."""
+        self.__points.clear()
+
+    def recalculate(self) -> "Centroid":
+        """Recalculates the centroid coordinates by creating the new instance.
+        This method works just as described in design pattern of State.
+        """
+        return Centroid.centroid_of(self.points, self.name)
+
     @staticmethod
-    def centroid_of(points: Iterable[Point], name: str = ""):
+    def centroid_of(points: Iterable[Point], name: str = "") -> "Centroid":
         """Static method implemented as a factory for the centroids by given
         points.
 
@@ -172,6 +208,15 @@ class Centroid(Point):
             averages.append(sum(p.coords[dimension] for p in points) / n)
 
         return Centroid(averages, points, name)
+
+    @staticmethod
+    def centroid_of_point(point: Point, name: str = "") -> "Centroid":
+        """Static method implemented as a factory for the centroids by given
+        point that is copied - in terms of the point's coordinates.
+
+        The given point is transformed into the centroid.
+        """
+        return Centroid(point.coords, (), name)
 
 
 class InconsistentDimensionalityError(Exception):
