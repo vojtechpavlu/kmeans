@@ -5,6 +5,12 @@ datapoints in the multidimensional space.
 from typing import Iterable, Dict
 from copy import deepcopy
 
+from typing import TYPE_CHECKING
+
+# Problems with circular imports
+if TYPE_CHECKING:
+    from src.metric import Metric
+
 
 class Point:
     """Instances of this class represents the points in the multidimensional
@@ -139,6 +145,22 @@ class Centroid(Point):
     def name(self) -> str:
         """Name given to the cluster."""
         return self.__name
+
+    @property
+    def frame(self) -> tuple[Point, Point]:
+        """Calculates the two framing points describing the space the
+        datapoints being assigned to this cluster (centroid)."""
+        return frame_of(self.points)
+
+    def variance(self, metric: "Metric") -> float:
+        """Calculates the variance of the cluster by squaring the distances
+        between the current centroid coordinates and each of the point
+        assigned to it.
+
+        To achieve this approach, the metric to calculate the distance has to
+        be provided."""
+        dist_squares = [metric.distance(self, p) ** 2 for p in self.points]
+        return sum(dist_squares)
 
     def __repr__(self):
         """String representation of the cluster."""

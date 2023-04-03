@@ -72,6 +72,8 @@ class KMeans:
     def centroid_by_name(self, name: str) -> Centroid:
         """Tries to find a centroid by given name. If there is no such
         centroid, it returns `None`."""
+        if not self.centroids:
+            raise KMeansError("Model haven't been trained yet")
         for centroid in self.centroids:
             if centroid.name == name:
                 return centroid
