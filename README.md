@@ -49,3 +49,14 @@ GitHub Actions
 - `test` - contains the unit tests to validate some of the features  
 
 
+## Notable objects
+
+The most important classes are definitely 
+
+- `Point` and `Centroid` (both defined in the `./src/datapoint.py` module), 
+  
+- abstract class `Metric` used to calculate the distance between two points 
+  in a multidimensional space (`./src/datapoint.py`) 
+  
+- class `KMeans`, that defines instances providing the actual model 
+  (this is defined in the `./src/k_means.py` module).
