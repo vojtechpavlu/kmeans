@@ -1,5 +1,7 @@
 # K-Means
 
+This repository was prepared as an educational project for lectures of Artificial
+Intelligence at [Smíchovská střední průmyslová škola a gymnázium](https://ssps.cz).
 
 K-Means is a popular cluster algorithm widely used in various fields for data
 analysis. Its centroid-based nature enables the simple way of assignment of
@@ -11,8 +13,8 @@ To find more information about this algorithm, have a look at the
 This implementation is not meant to be used in a production environments,
 because it uses just the simple Python means; no usage of NumPy or any other
 scientific and compute performance optimized library. The purpose of this 
-project is to be rather educational and not for being used in any mission 
-critical applications.
+project is to be rather descriptive and not for being used in any mission-critical 
+applications.
 
 
 ## Requirements
@@ -51,7 +53,7 @@ GitHub Actions
 
 ## Notable objects
 
-The most important classes are definitely 
+The most important classes are definitely:
 
 - `Point` and `Centroid` (both defined in the `./src/datapoint.py` module), 
   
